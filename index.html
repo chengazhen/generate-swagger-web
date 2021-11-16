@@ -1,0 +1,197 @@
+<!--
+ * @Description: 
+ * @Author: 
+ * @LastEditors: chengchongzhen
+ * @Date: 2021-11-15 16:45:09
+ * @LastEditTime: 2021-11-16 10:38:14
+-->
+<!DOCTYPE html>
+<html>
+
+<head>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        .clearfix:before,
+        .clearfix:after {
+            display: table;
+            content: "";
+        }
+
+        .clearfix:after {
+            clear: both
+        }
+
+        .clearfix .el-form-item {
+            margin-bottom: 0;
+        }
+    </style>
+    <meta charset="UTF-8">
+    <!-- import CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+</head>
+
+<body>
+    <div id="app">
+        <el-card class="box-card" shadow='never'>
+            <div slot="header" class="clearfix">
+                <el-form :inline="true" :model="formInline" class="demo-form-inline">
+                    <el-form-item label="文档接口">
+                        <el-input v-model="formInline.url" placeholder="文档接口,不需要swagger.html路径" @change="urlInput">
+                        </el-input>
+                    </el-form-item>
+                    <el-form-item label="接口模块">
+                        <el-select v-model="formInline.module" placeholder="接口模块" @change="selectModule">
+                            <el-option :label="item.ame" :value="item.name" v-for='(item,index) in module' :key='index'>
+                            </el-option>
+                        </el-select>
+                    </el-form-item>
+                    <el-form-item>
+                        <!-- <el-button type="primary" @click="onSubmit">查询</el-button> -->
+                    </el-form-item>
+                </el-form>
+            </div>
+            <el-row :gutter="20">
+                <el-col :span="12">
+                    <el-card class="box-card">
+                        <div slot="header">
+                            <el-tag>api 接口</el-tag>
+                        </div>
+                        <pre v-html='apiGenerate'></pre>
+                    </el-card>
+                </el-col>
+                <el-col :span="12">
+                    <el-card class="box-card">
+                        <div slot="header">
+                            <el-tag>table 表格</el-tag>
+                        </div>
+                    </el-card>
+                </el-col>
+            </el-row>
+        </el-card>
+    </div>
+</body>
+<script src="https://unpkg.com/vue/dist/vue.js"></script>
+<script src="https://unpkg.com/element-ui/lib/index.js"></script>
+<script src="https://cdn.bootcdn.net/ajax/libs/axios/0.21.1/axios.min.js"></script>
+<script>
+    // http://192.165.0.181:10043/schoolMasterReport
+    new Vue({
+        el: '#app',
+        data: function () {
+            return {
+                basePath: '',
+                visible: false,
+                formInline: {
+                    url: '',
+                    module: ''
+                },
+                module: [],
+                apiData: {},
+                apiGenerate: ''
+            }
+        },
+        created() {
+            this.formInline.url = sessionStorage.getItem('url')
+            if (this.formInline.url) {
+                this.urlInput(this.formInline.url)
+            }
+        },
+        methods: {
+            /**
+             * @description: 用户输入的url
+             * @param {*} value
+             * @return {*}
+             */            
+            urlInput(value) {
+                if (/http/.test(value)) {
+                    sessionStorage.setItem('url', value)
+                    axios.get(value + '/v2/api-docs').then(({ data }) => {
+                        const { tags, basePath } = data
+                        this.basePath = basePath
+                        this.module = tags
+                        this.apiData = data.paths
+                        console.log(this.apiData);
+                    })
+                }
+            },
+
+            /**
+             * @description: 选择需要生成代码的模块
+             * @param {*}
+             * @return {*}
+             */            
+            selectModule() {
+                this.apiGenerate = ''
+                for (const key in this.apiData) {
+                    const target = this.apiData[key]
+                    let method = 'get'
+                    let tag;
+                    if (target['get']) {
+                        tag = target['get'].tags
+                        method = 'get'
+                    } else {
+                        tag = target['post'].tags
+                        method = 'post'
+                    }
+                    if (tag.includes(this.formInline.module)) {
+                        let parameters
+                        parameters = target[method].parameters
+                        summary = target[method].summary
+                        const annotation = this.generateAnnotation(parameters, summary)
+                        this.apiGenerate += this.generateFuction(target, key, method, annotation)
+                    }
+                }
+            },
+            /**
+             * @description: 生成函数注释
+             * @param {*} parameters
+             * @return {*}
+             */
+            generateAnnotation(parameters = [], summary) {
+                let paramStr = ``
+                parameters.forEach(item => {
+                    paramStr += `* @param {*} ${item.name}
+                `})
+                return `
+                /**
+                * @description: ${summary}
+                ${paramStr}* @return {*}
+                */ `
+            },
+
+            /**
+             * @description: 生成函数
+             * @param {*} target
+             * @param {*} key
+             * @param {*} method
+             * @param {*} annotation
+             * @return {*}
+             */            
+            generateFuction(target, key, method, annotation) {
+                let paramsType = 'data'
+                if (method === 'get') {
+                    paramsType = 'params'
+                }
+                const paths = key.split('/')
+                const methodPart = paths.at(-1)
+                const funcStr = `
+                ${annotation}
+                export function ${method}${methodPart.replace(/^\S/, s => s.toUpperCase())}(${paramsType}, other = {}) {
+                    return request({
+                    url: "${key}",
+                    method: '${method}',
+                    ${paramsType},
+                    ...other
+                  })
+                }`
+                return funcStr
+            }
+        },
+    })
+</script>
+
+</html>
