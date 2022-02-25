@@ -3,7 +3,7 @@
  * @Author: 
  * @LastEditors: chengchongzhen
  * @Date: 2021-11-15 16:45:09
- * @LastEditTime: 2022-02-25 09:39:34
+ * @LastEditTime: 2022-02-25 10:03:51
 -->
 <!DOCTYPE html>
 <html>
@@ -248,7 +248,7 @@
               .then(({ data }) => {
                 this.loading = false
                 const { tags, basePath, definitions } = data
-                this.basePath = basePath
+                this.basePath = basePath || ''
                 this.module = tags
                 this.apiData = data.paths
 
@@ -380,7 +380,7 @@
             s.toUpperCase()
           )}(${isUrlParams ? urlParams + ',' : ''} ${paramsType}, other = {}) {
                     return request({
-                    url:${url},
+                    url:'${url}',
                     method: '${method}',
                     ${paramsType},
                     ...other
