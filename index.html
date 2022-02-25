@@ -3,7 +3,7 @@
  * @Author: 
  * @LastEditors: chengchongzhen
  * @Date: 2021-11-15 16:45:09
- * @LastEditTime: 2022-02-25 10:03:51
+ * @LastEditTime: 2022-02-25 10:13:49
 -->
 <!DOCTYPE html>
 <html>
@@ -56,6 +56,21 @@
   </head>
 
   <body>
+    <a href="https://github.com/azhen98/generate-swagger-web">
+      <img
+        style="
+          position: absolute;
+          top: 0;
+          right: 0;
+          width: 100px;
+          height: 100px;
+          border: 0;
+          z-index: 999;
+        "
+        src="https://nihaojob.github.io/markdown-css-smartisan/examples/fork-me-right-graphite@2x.png"
+        alt="Fork me on GitHub"
+      />
+    </a>
     <div id="app" v-loading="loading">
       <el-card class="form-card" shadow="never">
         <el-form :inline="true" :model="formInline" class="demo-form-inline">
@@ -82,13 +97,13 @@
               </el-option>
             </el-select>
           </el-form-item>
-          <el-form-item label="是否生成旧版api">
+          <el-form-item label="是否生成旧版api:">
             <el-switch v-model="formInline.old"> </el-switch>
           </el-form-item>
-          <el-form-item label="是否生成vue内部函数">
+          <el-form-item label="是否生成vue内部函数:">
             <el-switch v-model="formInline.vueFunc"> </el-switch>
           </el-form-item>
-          <el-form-item label="是否生成新版api">
+          <el-form-item label="是否生成新版api:">
             <el-switch v-model="formInline.new"> </el-switch>
           </el-form-item>
           <el-form-item>
@@ -99,6 +114,9 @@
             >
               axios 封装(简单版)</el-link
             >
+          </el-form-item>
+          <el-form-item label="">
+            <mark>提示:兼容swagger, apifox</mark>
           </el-form-item>
         </el-form>
       </el-card>
