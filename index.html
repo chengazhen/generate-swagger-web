@@ -3,7 +3,7 @@
  * @Author: 
  * @LastEditors: chengchongzhen
  * @Date: 2021-11-15 16:45:09
- * @LastEditTime: 2022-02-25 10:13:49
+ * @LastEditTime: 2022-02-28 10:30:05
 -->
 <!DOCTYPE html>
 <html>
@@ -49,9 +49,13 @@
     </style>
     <meta charset="UTF-8" />
     <!-- import CSS -->
-    <link
+    <!-- <link
       rel="stylesheet"
-      href="https://unpkg.com/element-ui/lib/theme-chalk/index.css"
+      href="https://unpkg.com/ElementPlus-ui/lib/theme-chalk/index.css"
+    /> -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/element-plus@2.0.3/dist/index.css"
+      rel="stylesheet"
     />
   </head>
 
@@ -130,7 +134,7 @@
                   :data-clipboard-text="apiGenerate"
                   type="primary"
                   plain
-                  size="mini"
+                  size="small"
                   style="float: right"
                   class="copyBtn"
                   >复制所有代码
@@ -147,7 +151,7 @@
                   :data-clipboard-text="vueFuncGenerate"
                   type="primary"
                   plain
-                  size="mini"
+                  size="small"
                   style="float: right"
                   class="copyBtn"
                   >复制所有代码
@@ -168,7 +172,7 @@
                   :data-clipboard-text="oldApiGenerate"
                   type="primary"
                   plain
-                  size="mini"
+                  size="small"
                   style="float: right"
                   class="copyBtn"
                   >复制所有代码
@@ -185,7 +189,7 @@
                   :data-clipboard-text="tableGenerateData"
                   type="primary"
                   plain
-                  size="mini"
+                  size="small"
                   style="float: right"
                   class="copyBtn"
                   >复制所有代码
@@ -198,13 +202,14 @@
       </el-card>
     </div>
   </body>
-  <script src="https://cdn.bootcdn.net/ajax/libs/vue/2.6.12/vue.min.js"></script>
-  <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+  <!-- <script src="https://cdn.bootcdn.net/ajax/libs/vue/2.6.12/vue.min.js"></script> -->
+  <script src="https://cdn.bootcdn.net/ajax/libs/vue/3.2.31/vue.global.min.js"></script>
+  <!-- <script src="https://unpkg.com/ElementPlus-ui/lib/index.js"></script> -->
+  <script src="https://cdn.jsdelivr.net/npm/element-plus@2.0.3/dist/index.full.min.js"></script>
   <script src="https://cdn.bootcdn.net/ajax/libs/axios/0.21.1/axios.min.js"></script>
   <script src="https://cdn.bootcdn.net/ajax/libs/clipboard.js/2.0.8/clipboard.min.js"></script>
   <script>
-    new Vue({
-      el: '#app',
+    const app = Vue.createApp({
       data: function () {
         return {
           basePath: '',
@@ -237,7 +242,7 @@
       mounted() {
         var clipboard = new ClipboardJS('.copyBtn')
         clipboard.on('success', function (e) {
-          ELEMENT.Message({
+          ElementPlus.Message({
             message: '复制成功',
             type: 'success'
           })
@@ -246,7 +251,7 @@
         clipboard.on('error', function (e) {
           console.error('Action:', e.action)
           console.error('Trigger:', e.trigger)
-          ELEMENT.Message.error('复制失败')
+          ElementPlus.Message.error('复制失败')
         })
       },
       methods: {
@@ -452,7 +457,7 @@
                 try {
                     const { code, result } = await ${funcName}()
                     if (code === 200 && result) {
-                        
+
                     }else{
                         this.tableData = []
                     }
@@ -514,5 +519,7 @@
         }
       }
     })
+    app.use(ElementPlus)
+    app.mount('#app')
   </script>
 </html>
