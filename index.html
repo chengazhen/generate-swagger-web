@@ -3,7 +3,7 @@
  * @Author: 
  * @LastEditors: chengchongzhen
  * @Date: 2021-11-15 16:45:09
- * @LastEditTime: 2022-03-18 17:09:48
+ * @LastEditTime: 2022-03-18 17:42:49
 -->
 <!DOCTYPE html>
 <html>
@@ -229,7 +229,8 @@
           loading: false,
           activeNames: '1',
           tableDataRow: [],
-          tableGenerateData: ''
+          tableGenerateData: '',
+          definitions: {}
         }
       },
       created() {
@@ -283,7 +284,8 @@
                     this.tableDataRow.push(definitions[key])
                   }
                 }
-                console.log('definitions===>', this.tableDataRow)
+
+                this.definitions = definitions
               })
               .catch(error => {
                 this.loading = false
@@ -344,11 +346,16 @@
                   summary
                 )
               }
+              const vueannotation = `
+                /**
+                * @description: ${summary}
+                *  @return {*}
+                */ `
               if (this.formInline.vueFunc) {
                 this.vueFuncGenerate += this.generateVueFunc(
                   key,
                   method,
-                  annotation
+                  vueannotation
                 )
               }
             }
@@ -361,12 +368,25 @@
          */
         generateAnnotation(parameters = [], summary) {
           let paramStr = ``
-          parameters.forEach(item => {
-            if (!/item.name/g.test(paramStr)) {
-              paramStr += `* @param {*} ${item.name}
+          const schema = parameters[0]
+          if (parameters.length === 1 && schema) {
+            const key = schema.schema.$ref.split('/').at(-1)
+            parameters = this.definitions[key].properties
+            for (const [key, value] of Object.entries(parameters)) {
+              if (!/key/g.test(paramStr)) {
+                paramStr += `* @param {${value.type}} ${key} ${value.description}
                 `
+              }
             }
-          })
+          } else {
+            parameters.forEach(item => {
+              if (!/item.name/g.test(paramStr)) {
+                paramStr += `* @param {*} ${item.name}
+                `
+              }
+            })
+          }
+
           return `
                 /**
                 * @description: ${summary}
