@@ -3,7 +3,7 @@
  * @Author: 
  * @LastEditors: chengchongzhen
  * @Date: 2021-11-15 16:45:09
- * @LastEditTime: 2022-02-28 10:30:05
+ * @LastEditTime: 2022-03-18 17:09:48
 -->
 <!DOCTYPE html>
 <html>
@@ -235,6 +235,7 @@
       created() {
         const form = JSON.parse(localStorage.getItem('form'))
         if (form) {
+          delete form.module
           this.formInline = form
           this.urlInput(this.formInline.url)
         }
