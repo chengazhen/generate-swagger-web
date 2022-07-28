@@ -121,7 +121,17 @@ const app = Vue.createApp({
               this.tableGenerateData += this.generateTable(item)
             }
           })
+
           summary = target[method].summary
+
+
+
+          const interfaceName = this.getInterfaceName(key, method)
+          let interface = ''
+          if (/openapi/.test(this.formInline.url)) {
+            interface = this.generateInterface(interfaceName, target[method].requestBody.content['application/json'])
+          }
+
           const annotation = this.generateAnnotation(parameters, summary)
           if (this.formInline.new) {
             this.apiGenerate += this.generateFuction(
@@ -131,11 +141,14 @@ const app = Vue.createApp({
               annotation
             )
           }
+
           if (this.formInline.old) {
             this.oldApiGenerate += this.generateOldFunction(
               key,
               method,
-              summary
+              annotation,
+              interface,
+              interfaceName
             )
           }
           const vueannotation = `
@@ -160,30 +173,30 @@ const app = Vue.createApp({
      */
     generateAnnotation(parameters = [], summary) {
       let paramStr = ``
-      // const schema = parameters[0]
-      // if (parameters.length === 1 && schema) {
-      //   const key = schema.schema.$ref.split('/').at(-1)
-      //   parameters = this.definitions[key].properties
-      //   for (const [key, value] of Object.entries(parameters)) {
-      //     if (!/key/g.test(paramStr)) {
-      //       paramStr += `* @param {${value.type}} ${key} ${value.description}
-      //       `
-      //     }
-      //   }
-      // } else {
-      //   parameters.forEach(item => {
-      //     if (!/item.name/g.test(paramStr)) {
-      //       paramStr += `* @param {*} ${item.name}
-      //       `
-      //     }
-      //   })
-      // }
+      const schema = parameters[0]
+      if (parameters.length === 1 && schema) {
+        const key = schema.schema.$ref.split('/').at(-1)
+        parameters = this.definitions[key].properties
+        for (const [key, value] of Object.entries(parameters)) {
+          if (!/key/g.test(paramStr)) {
+            paramStr += `* @param {${value.type}} ${key} ${value.description}
+            `
+          }
+        }
+      } else {
+        parameters.forEach(item => {
+          if (!/item.name/g.test(paramStr)) {
+            paramStr += `* @param {*} ${item.name}
+            `
+          }
+        })
+      }
 
       return `
-            /**
-            * @description: ${summary}
-            ${paramStr}* @return {*}
-            */ `
+/**
+  * @description: ${summary}
+  ${paramStr}* @return {*}
+  */ `
     },
 
     /**
@@ -225,18 +238,47 @@ const app = Vue.createApp({
       return funcStr
     },
 
+
+    generateInterface(methodName, obj) {
+
+      const dict = {
+        integer: "number",
+        string: "string"
+      }
+
+      let paramStr = `
+      interface ${methodName} {`
+
+
+      for (const [key, value] of Object.entries(obj.schema.properties)) {
+        paramStr += `
+          ${key}:${dict[value.type]}`
+
+      }
+
+      paramStr += `
+    }`
+
+      return paramStr
+
+    },
+
     /**
      * @description: 生成旧版 api
      * @param {*}
      * @return {*}
      */
-    generateOldFunction(key, method, summary) {
+    generateOldFunction(key, method, summary, interface, interfaceName) {
+      const interfaceNameRes = interface ? ':' + interfaceName : ''
       const paths = key.split('/')
       const methodPart = paths.at(-1)
+      const url = `api|${this.basePath}${key}/|${method.toUpperCase()}`
       return `
-            // ${summary}
-            export const ${method}${methodPart}="${this.basePath}${key}/|${method.toUpperCase()}"
-            `
+          ${interface}
+          ${summary}
+          export const ${method}${methodPart.replace(/^\S/, s =>
+        s.toUpperCase()
+      )} = (data${interfaceNameRes} ) =>  request('${url}',data)`
     },
 
     async getAppReservationPage() {
@@ -333,6 +375,12 @@ const app = Vue.createApp({
             `
       return str
     },
+
+    getInterfaceName(key, method) {
+      const paths = key.split('/')
+      const methodPart = paths.at(-1)
+      return `${method.replace(/^\S/, s => s.toUpperCase())}${methodPart.replace(/^\S/, s => s.toUpperCase())}`
+    }
   }
 })
 app.use(ElementPlus)
