@@ -19,7 +19,8 @@ const app = Vue.createApp({
       activeNames: '1',
       tableDataRow: [],
       tableGenerateData: '',
-      definitions: {}
+      definitions: {},
+      platform: 'Apifox'
     }
   },
   created() {
@@ -58,8 +59,19 @@ const app = Vue.createApp({
       if (/http/.test(value)) {
         if (!/openapi/.test(value)) {
           value = value + '/v2/api-docs'
+          this.platform = 'swagger'
         }
+
+        this.$notify({
+          type: "success",
+          title: '提示',
+          position: "bottom-right",
+          message: `当前api文档平台为 (${this.platform}) `
+        })
+
         this.loading = true
+
+
         axios
           .get(value)
           .then(({ data }) => {
@@ -79,9 +91,15 @@ const app = Vue.createApp({
 
             this.definitions = definitions
           })
-          .catch(error => {
+          .catch(() => {
             this.loading = false
-            console.log(error)
+            this.$notify({
+              type: "error",
+              title: '提示',
+              position: "bottom-right",
+              message: `文档数据加载失败了!!! `
+            })
+
           })
       }
     },
@@ -173,30 +191,46 @@ const app = Vue.createApp({
      */
     generateAnnotation(parameters = [], summary) {
       let paramStr = ``
-      const schema = parameters[0]
-      if (parameters.length === 1 && schema) {
-        const key = schema.schema.$ref.split('/').at(-1)
-        parameters = this.definitions[key].properties
-        for (const [key, value] of Object.entries(parameters)) {
-          if (!/key/g.test(paramStr)) {
-            paramStr += `* @param {${value.type}} ${key} ${value.description}
-            `
-          }
-        }
-      } else {
-        parameters.forEach(item => {
-          if (!/item.name/g.test(paramStr)) {
-            paramStr += `* @param {*} ${item.name}
-            `
-          }
-        })
-      }
+      //     if (this.platform !== 'Apifox') {
+      //       const schema = parameters[0]
+      //       if (parameters.length === 1 && schema) {
+      //         const key = schema.schema.$ref.split('/').at(-1)
+      //         parameters = this.definitions[key].properties
+      //         for (const [key, value] of Object.entries(parameters)) {
+      //           if (!/key/g.test(paramStr)) {
+      //             paramStr +=
+      //               `
+      // * @param {${value.type}} ${key} ${value.description}`
+      //           }
+      //         }
+      //       } else {
+      //         parameters.forEach(item => {
+      //           if (!/item.name/g.test(paramStr)) {
+      //             paramStr += `
+      // * @param {*} ${item.name}
+      //             `
+      //           }
+      //         })
+      //       }
+      //     }
 
-      return `
+
+      //  判断是否生成了参数
+      if (paramStr) {
+        return `
 /**
   * @description: ${summary}
-  ${paramStr}* @return {*}
+  ${paramStr}
+  * @return {*}
   */ `
+      } else {
+        return `
+/**
+  * @description: ${summary}
+  * @return {*}
+  */ `
+      }
+
     },
 
     /**
