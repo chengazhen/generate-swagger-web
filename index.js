@@ -239,20 +239,26 @@ const app = Vue.createApp({
     },
 
 
-    generateInterface(methodName, obj) {
+    generateInterface(methodName, { schema }) {
 
       const dict = {
         integer: "number",
-        string: "string"
+        byte: "number",
+        short: "number",
+        int: "number",
+        long: "number",
+        float: "number",
+        double: "number",
+        string: "string",
+        char: "string",
+        boolean: "boolean",
       }
 
       let paramStr = `
       interface ${methodName} {`
-
-
-      for (const [key, value] of Object.entries(obj.schema.properties)) {
+      for (const [key, value] of Object.entries(schema.properties)) {
         paramStr += `
-          ${key}:${dict[value.type]}`
+          ${key}${schema.required.includes(key) ? ':' : ':?'}${dict[value.type]}`
 
       }
 
