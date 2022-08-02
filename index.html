@@ -3,7 +3,7 @@
  * @Author: 
  * @LastEditors: chengchongzhen
  * @Date: 2021-11-15 16:45:09
- * @LastEditTime: 2022-07-28 20:48:14
+ * @LastEditTime: 2022-08-02 14:58:41
 -->
 <!DOCTYPE html>
 <html>
@@ -101,15 +101,18 @@
           <el-form-item label="是否生成新版api:">
             <el-switch v-model="formInline.new"> </el-switch>
           </el-form-item>
+
+          <el-form-item label="baseHost(内部用)">
+            <el-input v-model="formInline.oldHost" placeholder="Please input" />
+          </el-form-item>
+
           <el-form-item>
             <el-link target="_blank" href="https://github.com/azhen98/generate-swagger-web" type="primary">
               github仓库
             </el-link>
           </el-form-item>
 
-          <el-form-item label="">
 
-          </el-form-item>
         </el-form>
 
       </el-card>

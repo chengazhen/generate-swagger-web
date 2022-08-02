@@ -8,7 +8,8 @@ const app = Vue.createApp({
         module: '',
         old: false,
         new: true,
-        vueFunc: true
+        vueFunc: true,
+        oldHost: 'api'
       },
       module: [],
       apiData: {},
@@ -20,7 +21,7 @@ const app = Vue.createApp({
       tableDataRow: [],
       tableGenerateData: '',
       definitions: {},
-      platform: 'Apifox'
+      platform: 'Apifox',
     }
   },
   created() {
@@ -312,7 +313,7 @@ const app = Vue.createApp({
       const interfaceNameRes = interface ? ':' + interfaceName : ''
       const paths = key.split('/')
       const methodPart = paths.at(-1)
-      const url = `api|${this.basePath}${key}/|${method.toUpperCase()}`
+      const url = `${this.formInline.oldHost}|${this.basePath}${key}/|${method.toUpperCase()}`
       return `
           ${interface}
           ${summary}
