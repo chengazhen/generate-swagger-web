@@ -1,5 +1,5 @@
 const app = Vue.createApp({
-  data: function () {
+  data() {
     return {
       basePath: '',
       visible: false,
@@ -24,16 +24,9 @@ const app = Vue.createApp({
       platform: 'Apifox',
     }
   },
-  created() {
-    const form = JSON.parse(localStorage.getItem('form'))
-    if (form) {
-      delete form.module
-      this.formInline = form
-      this.urlInput(this.formInline.url)
-    }
-  },
   mounted() {
     var clipboard = new ClipboardJS('.copyBtn')
+    console.log(clipboard);
     clipboard.on('success', (e) => {
       this.$message({
         message: '复制成功',
@@ -49,7 +42,17 @@ const app = Vue.createApp({
         message: '复制失败'
       })
     })
+
+    const form = JSON.parse(localStorage.getItem('form'))
+    if (form) {
+      delete form.module
+      this.formInline = form
+      this.urlInput(this.formInline.url)
+    }
   },
+  beforeMount () {
+    console.log(23424);
+  }, 
   methods: {
     /**
      * @description: 用户输入的url
