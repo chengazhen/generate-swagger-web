@@ -316,7 +316,7 @@ const app = Vue.createApp({
       const interfaceNameRes = interface ? ':' + interfaceName : ''
       const paths = key.split('/')
       const methodPart = paths.at(-1)
-      const url = `${this.formInline.oldHost}|${this.basePath}${key}/|${method.toUpperCase()}`
+      const url = `${this.formInline.oldHost}|${this.basePath}${key}|${method.toUpperCase()}`
       return `
           ${interface}
           ${summary}
