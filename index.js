@@ -296,7 +296,7 @@ const app = Vue.createApp({
       interface ${methodName} {`
       for (const [key, value] of Object.entries(schema.properties)) {
         paramStr += `
-          ${key}${schema.required.includes(key) ? ':' : ':?'}${dict[value.type]}`
+          ${key}${schema.required.includes(key) ? ':' : '?:'}${dict[value.type]}`
 
       }
 
