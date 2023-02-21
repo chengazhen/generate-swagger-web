@@ -62,7 +62,7 @@ const app = Vue.createApp({
     urlInput(value) {
       if (/http/.test(value)) {
         if (!/openapi/.test(value)) {
-          value = value + '/v2/api-docs'
+          // value = value + '/v2/api-docs'
           this.platform = 'swagger'
         }
 
