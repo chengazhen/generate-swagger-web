@@ -175,15 +175,12 @@ const app = Vue.createApp({
             }
           }
 
-          // 导入接口类型
-          const importStr = `import { ${Array.from(this.interfaceMap.keys()).join(',')} } from ''`
+       
 
 
-        
 
           const annotation = this.generateAnnotation(parameters, summary)
           if (this.formInline.new) {
-            this.apiGenerate = importStr
             this.apiGenerate += this.generateFuction(
               target,
               key,
@@ -193,8 +190,6 @@ const app = Vue.createApp({
           }
 
           if (this.formInline.old) {
-            
-            this.oldApiGenerate = importStr
             this.oldApiGenerate += this.generateOldFunction(
               key,
               method,
@@ -202,6 +197,7 @@ const app = Vue.createApp({
               interface,
               interfaceName
             )
+
           }
 
           const vueannotation = `
@@ -218,6 +214,17 @@ const app = Vue.createApp({
           }
         }
       }
+
+         // 导入接口类型
+      const importStr = `import { ${Array.from(this.interfaceMap.keys()).join(',')} } from ''`
+      if (this.formInline.old) {
+        this.oldApiGenerate =  importStr + this.oldApiGenerate
+      }
+
+      if (this.formInline.new) {
+        this.apiGenerate = importStr + this.apiGenerate 
+      }
+     
     },
     /**
      * @description: 生成函数注释
