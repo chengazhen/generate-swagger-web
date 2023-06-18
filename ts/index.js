@@ -160,15 +160,29 @@ const app = Vue.createApp({
 
           summary = target[method].summary
 
-          const reqKey = parameters[0].schema.$ref.split('/').at(-1)
-          const schema = this.definitions[reqKey]
-          const interfaceName = schema.title
-
-          // 生成接口类型
+        
+          //  --------------------生成interface-------------------------
           let interface = ''
+          // 判断是哪个平台
+          // 如果是 apifox
           if (/openapi/.test(this.formInline.url)) {
-            interface = this.generateInterface(interfaceName, target[method].requestBody.content['application/json'])
+            const interfaceName = this.getInterfaceName(key, method)
+            const { requestBody } = target[method]
+            if ( requestBody ) {
+              const schema = requestBody?.content['application/json']?.schema
+              if (!this.interfaceMap.has(interfaceName) && schema) {
+               const schema = requestBody.content['application/json']?.schema
+                interface = this.generateInterface(interfaceName, schema)
+                this.interfaceMap.set(interfaceName, interface)
+              }
+            }
+
           } else {
+
+            // 如果是 swagger 
+            const reqKey = parameters[0].schema.$ref.split('/').at(-1)
+            const schema = this.definitions[reqKey]
+            const interfaceName = schema.title
             if (!this.interfaceMap.has(interfaceName)) {
               interface = this.generateSwaggerInterface(schema)
               this.interfaceMap.set(interfaceName, interface)
@@ -315,10 +329,7 @@ const app = Vue.createApp({
     },
 
 
-    generateInterface(methodName, { schema }) {
-
-
-
+    generateInterface(methodName, schema) {
       let paramStr = `
       interface ${methodName} {`
       for (const [key, value] of Object.entries(schema.properties)) {

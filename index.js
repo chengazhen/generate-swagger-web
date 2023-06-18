@@ -148,11 +148,7 @@ const app = Vue.createApp({
 
 
 
-          const interfaceName = this.getInterfaceName(key, method)
-          let interface = ''
-          if (/openapi/.test(this.formInline.url)) {
-            interface = this.generateInterface(interfaceName, target[method].requestBody.content['application/json'])
-          }
+        
 
           const annotation = this.generateAnnotation(parameters, summary)
           if (this.formInline.new) {
@@ -274,37 +270,6 @@ const app = Vue.createApp({
               })
             }`
       return funcStr
-    },
-
-
-    generateInterface(methodName, { schema }) {
-
-      const dict = {
-        integer: "number",
-        byte: "number",
-        short: "number",
-        int: "number",
-        long: "number",
-        float: "number",
-        double: "number",
-        string: "string",
-        char: "string",
-        boolean: "boolean",
-      }
-
-      let paramStr = `
-      interface ${methodName} {`
-      for (const [key, value] of Object.entries(schema.properties)) {
-        paramStr += `
-          ${key}${schema.required.includes(key) ? ':' : '?:'}${dict[value.type]}`
-
-      }
-
-      paramStr += `
-    }`
-
-      return paramStr
-
     },
 
     /**
