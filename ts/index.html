@@ -3,7 +3,7 @@
  * @Author: 
  * @LastEditors: chengchongzhen
  * @Date: 2021-11-15 16:45:09
- * @LastEditTime: 2023-06-17 16:12:16
+ * @LastEditTime: 2023-07-16 17:35:03
 -->
 <!DOCTYPE html>
 <html>
@@ -92,20 +92,17 @@
               </el-option>
             </el-select>
           </el-form-item>
-          <el-form-item label="是否生成公司内部api:">
+          <!-- <el-form-item label="是否生成公司内部api:">
             <el-switch v-model="formInline.old"> </el-switch>
           </el-form-item>
           <el-form-item label="是否生成vue内部函数:">
             <el-switch v-model="formInline.vueFunc"> </el-switch>
-          </el-form-item>
-          <el-form-item label="是否生成新版api:">
-            <el-switch v-model="formInline.new"> </el-switch>
-          </el-form-item>
+          </el-form-item> -->
 
-          <el-form-item label="baseHost(内部用)">
+          <el-form-item label="baseHost">
             <el-input v-model="formInline.oldHost" placeholder="Please input" />
           </el-form-item>
-
+  
           <el-form-item>
             <el-link target="_blank" href="https://github.com/azhen98/generate-swagger-web" type="primary">
               github仓库
@@ -149,17 +146,6 @@
           <el-col :span="12">
             <el-card>
               <div slot="header">
-                <el-tag>公司内部api</el-tag>
-                <el-button :data-clipboard-text="oldApiGenerate" type="primary" plain size="small" style="float: right"
-                  class="copyBtn">复制所有代码
-                </el-button>
-              </div>
-              <pre v-html="oldApiGenerate"></pre>
-            </el-card>
-          </el-col>
-          <el-col :span="12">
-            <el-card>
-              <div slot="header">
                 <el-tag>vue 内部函数</el-tag>
                 <el-button :data-clipboard-text="vueFuncGenerate" type="primary" plain size="small" style="float: right"
                   class="copyBtn">复制所有代码
@@ -182,6 +168,7 @@
 <script src="https://cdn.jsdelivr.net/npm/element-plus@2.2.0/dist/index.full.min.js"></script>
 <script src="https://cdn.bootcdn.net/ajax/libs/axios/0.21.1/axios.min.js"></script>
 <script src="https://cdn.bootcdn.net/ajax/libs/clipboard.js/2.0.8/clipboard.min.js"></script>
+<script src="./swagger.js"></script>
 <script src="./index.js">
 
 </script>

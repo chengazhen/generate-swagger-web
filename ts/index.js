@@ -12,6 +12,7 @@ const dict = {
   array: "string[] | number[]",
 }
 
+
 const app = Vue.createApp({
   data() {
     return {
@@ -160,7 +161,7 @@ const app = Vue.createApp({
 
           summary = target[method].summary
 
-        
+
           //  --------------------生成interface-------------------------
           let interface = ''
           // 判断是哪个平台
@@ -168,10 +169,10 @@ const app = Vue.createApp({
           if (/openapi/.test(this.formInline.url)) {
             const interfaceName = this.getInterfaceName(key, method)
             const { requestBody } = target[method]
-            if ( requestBody ) {
+            if (requestBody) {
               const schema = requestBody?.content['application/json']?.schema
               if (!this.interfaceMap.has(interfaceName) && schema) {
-               const schema = requestBody.content['application/json']?.schema
+                const schema = requestBody.content['application/json']?.schema
                 interface = this.generateInterface(interfaceName, schema)
                 this.interfaceMap.set(interfaceName, interface)
               }
@@ -179,18 +180,28 @@ const app = Vue.createApp({
 
           } else {
 
-            // 如果是 swagger 
-            const reqKey = parameters[0].schema.$ref.split('/').at(-1)
-            const schema = this.definitions[reqKey]
-            const interfaceName = schema.title
+            // swagger 平台
+
+            const swagger = new Swagger(parameters, this.definitions, this.formInline.oldHost)
+
+            const schema = swagger.getSchema()
+
+            if (!schema) {
+              continue
+            }
+
+            this.apiGenerate += swagger.generateFuction(key, method, swagger.generateAnnotation(summary))
+
+            const interfaceName = swagger.getInterfaceName(schema) || swagger.generateInterfaceName(method, key)
+            interface = swagger.getInterface(interfaceName)
+            
             if (!this.interfaceMap.has(interfaceName)) {
-              interface = this.generateSwaggerInterface(schema)
               this.interfaceMap.set(interfaceName, interface)
             }
+
+            // swagerr 重构了代码，如果是 swagger 就直接跳过下面的代码
+            continue
           }
-
-       
-
 
 
           const annotation = this.generateAnnotation(parameters, summary)
@@ -211,7 +222,6 @@ const app = Vue.createApp({
               interface,
               interfaceName
             )
-
           }
 
           const vueannotation = `
@@ -229,16 +239,17 @@ const app = Vue.createApp({
         }
       }
 
-         // 导入接口类型
-      const importStr = `import { ${Array.from(this.interfaceMap.keys()).join(',')} } from ''`
-      if (this.formInline.old) {
-        this.oldApiGenerate =  importStr + this.oldApiGenerate
-      }
+      // // 导入接口类型
+      // const importStr = `import { ${Array.from(this.interfaceMap.keys()).join(',')} } from ''`
+      // if (this.formInline.old) {
+      //   this.oldApiGenerate = importStr + this.oldApiGenerate
+      // }
 
-      if (this.formInline.new) {
-        this.apiGenerate = importStr + this.apiGenerate 
-      }
-     
+
+      // if (this.formInline.new) {
+      //   this.apiGenerate = importStr + this.apiGenerate
+      // }
+
     },
     /**
      * @description: 生成函数注释
@@ -247,29 +258,6 @@ const app = Vue.createApp({
      */
     generateAnnotation(parameters = [], summary) {
       let paramStr = ``
-      //     if (this.platform !== 'Apifox') {
-      //       const schema = parameters[0]
-      //       if (parameters.length === 1 && schema) {
-      //         const key = schema.schema.$ref.split('/').at(-1)
-      //         parameters = this.definitions[key].properties
-      //         for (const [key, value] of Object.entries(parameters)) {
-      //           if (!/key/g.test(paramStr)) {
-      //             paramStr +=
-      //               `
-      // * @param {${value.type}} ${key} ${value.description}`
-      //           }
-      //         }
-      //       } else {
-      //         parameters.forEach(item => {
-      //           if (!/item.name/g.test(paramStr)) {
-      //             paramStr += `
-      // * @param {*} ${item.name}
-      //             `
-      //           }
-      //         })
-      //       }
-      //     }
-
 
       //  判断是否生成了参数
       if (paramStr) {
